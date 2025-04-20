@@ -1,26 +1,32 @@
-import os
-from flow import create_flow
+from flow import create_search_flow
+import asyncio
 
-def main():
-    """Run the web search flow"""
+async def main():
+    # Create the flow
+    flow = create_search_flow()
     
-    # Get search query from user
-    query = input("Enter search query: ")
-    if not query:
-        print("Error: Query is required")
-        return
-        
+    # Get user input
+    query = input("Enter your search query: ")
+    context = input("Enter any context (optional): ")
+    
     # Initialize shared data
     shared = {
         "query": query,
-        "num_results": 5
+        "context": context,
+        "search_type": None,
+        "search_query": None,
+        "search_results": None,
+        "analysis": None,
+        "final_answer": None
     }
     
-    # Create and run flow
-    flow = create_flow()
-    flow.run(shared)
-    
-    # Results are in shared["analysis"]
-    
+    # Run the flow
+    try:
+        await flow.run_async(shared)
+        print("\n=== Final Answer ===")
+        print(shared.get("final_answer", {}).get("answer", "No answer generated"))
+    except Exception as e:
+        print(f"Error running flow: {e}")
+
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
